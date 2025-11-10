@@ -2,10 +2,11 @@ package game2048;
 
 import java.util.Formatter;
 import java.util.Observable;
+import java.util.Scanner;
 
 
 /** The state of a game of 2048.
- *  @author TODO: YOUR NAME HERE
+ *  @author ZJH
  */
 public class Model extends Observable {
     /** Current contents of the board. */
@@ -108,11 +109,12 @@ public class Model extends Observable {
      * */
     public boolean tilt(Side side) {
         boolean changed;
-        changed = false;
 
         // TODO: Modify this.board (and perhaps this.score) to account
         // for the tilt to the Side SIDE. If the board changed, set the
         // changed local variable to true.
+
+        changed = moveByDirections(side);
 
         checkGameOver();
         if (changed) {
@@ -120,6 +122,71 @@ public class Model extends Observable {
         }
         return changed;
     }
+
+    /**
+     * Two helper methods for the Task-tilt
+     */
+    private boolean moveAllCols() {
+        boolean ifChange = false;
+        for(int col = 0;col < board.size();++col) {
+            boolean[] merged = new boolean[board.size()];
+            for(int row = board.size() - 2;row >= 0;--row) {
+                //非空则继续
+                if(board.tile(col, row) != null) {
+                    Tile t = board.tile(col, row);
+
+                    //先计算当前tile的偏移量
+                    int dx = 0;
+                    while(row + dx + 1 < board.size() && board.tile(col,row + dx + 1) == null) {
+                        dx++;
+                    }
+
+                    //判断移动位置
+                    // 第一个条件这里用了很久时间找出Bug，因为上面找偏移量的时候有可能偏移到最顶行，
+                    // 所以要先判断偏移后的顶上一格是否已经越界了，不然会报越界异常
+                    if(row + dx + 1 < board.size() && board.tile(col, row + dx + 1) != null &&
+                            board.tile(col, row + dx + 1).value() == t.value()
+                            && !merged[row + dx + 1]) {
+                        //注意这里要先加总分值再移动tile，不然会报空值异常
+                        this.score += 2 * board.tile(col, row).value();
+                        board.move(col, row + dx + 1, t);
+                        merged[row + dx + 1] = true;
+                        ifChange = true;
+                    } else {
+                        board.move(col, row + dx, t);
+                        if(dx != 0) {
+                            ifChange = true;
+                        }
+                    }
+                }
+            }
+        }
+        return ifChange;
+    }
+
+    private boolean moveByDirections(Side side) {
+        boolean ifChange = false;
+        switch (side) {
+            case NORTH -> ifChange = moveAllCols();
+            case SOUTH -> {
+                board.setViewingPerspective(Side.SOUTH);
+                ifChange = moveAllCols();
+                board.setViewingPerspective(Side.NORTH);
+            }
+            case WEST -> {
+                board.setViewingPerspective(Side.WEST);
+                ifChange = moveAllCols();
+                board.setViewingPerspective(Side.NORTH);
+            }
+            case EAST -> {
+                board.setViewingPerspective(Side.EAST);
+                ifChange = moveAllCols();
+                board.setViewingPerspective(Side.NORTH);
+            }
+        }
+        return ifChange;
+    }
+
 
     /** Checks if the game is over and sets the gameOver variable
      *  appropriately.
@@ -138,6 +205,13 @@ public class Model extends Observable {
      * */
     public static boolean emptySpaceExists(Board b) {
         // TODO: Fill in this function.
+        for(int i = 0;i < b.size();i++) {
+            for(int j = 0;j < b.size();j++) {
+                if(b.tile(j, i) == null) {
+                    return true;
+                }
+            }
+        }
         return false;
     }
 
@@ -148,6 +222,13 @@ public class Model extends Observable {
      */
     public static boolean maxTileExists(Board b) {
         // TODO: Fill in this function.
+        for(int i = 0;i < b.size();++i) {
+            for(int j = 0;j < b.size();++j) {
+                if (b.tile(i, j) != null && b.tile(i, j).value() == MAX_PIECE) {
+                    return true;
+                }
+            }
+        }
         return false;
     }
 
@@ -159,12 +240,34 @@ public class Model extends Observable {
      */
     public static boolean atLeastOneMoveExists(Board b) {
         // TODO: Fill in this function.
+        if (emptySpaceExists(b)) {
+            return true;
+        }
+        int[][] dir = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};  //定义上下左右方向数组
+        for(int i = 0;i < b.size();++i) {
+            for(int j = 0;j < b.size();++j) {
+                Tile t = b.tile(i, j);
+                int var1 = t.value();
+                for(int k = 0;k < 4;++k) {
+                    //先判断数组索引是否越界
+                    if(i + dir[k][0] >= b.size() || i + dir[k][0] < 0
+                            || j + dir[k][1] < 0 || j + dir[k][1] >= b.size()) {
+                        break;
+                    }
+                    Tile nt = b.tile(i + dir[k][0], j + dir[k][1]);
+                    int var2 = nt.value();
+                    if(var1 == var2) {
+                        return true;
+                    }
+                }
+            }
+        }
         return false;
     }
 
 
     @Override
-     /** Returns the model as a string, used for debugging. */
+    /** Returns the model as a string, used for debugging. */
     public String toString() {
         Formatter out = new Formatter();
         out.format("%n[%n");
