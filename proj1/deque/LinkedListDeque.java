@@ -12,7 +12,7 @@ public class LinkedListDeque<T> implements Deque<T>, Iterable<T> {
     private class LinkedListDequeIterator implements Iterator<T> {
         private Node<T> curr;
 
-        public LinkedListDequeIterator() {
+        LinkedListDequeIterator() {
             curr = sentinel.next; // 从第一个元素开始
         }
 
@@ -30,6 +30,36 @@ public class LinkedListDeque<T> implements Deque<T>, Iterable<T> {
             curr = curr.next;
             return item;
         }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        // 1. 自身引用检查
+        if (this == o) {
+            return true;
+        }
+        // 2. 非空和类型检查（必须是Deque的实现类）
+        if (o == null || !(o instanceof Deque)) {
+            return false;
+        }
+        Deque<?> other = (Deque<?>) o;
+        // 3. 大小检查
+        if (this.size() != other.size()) {
+            return false;
+        }
+        // 4. 元素逐一比较
+        for (int i = 0; i < this.size(); i++) {
+            Object thisItem = this.get(i);
+            Object otherItem = other.get(i);
+            // 处理null元素：两者都为null则相等；一个为null另一个不为null则不等
+            if (thisItem == null && otherItem == null) {
+                continue;
+            }
+            if (thisItem == null || !thisItem.equals(otherItem)) {
+                return false;
+            }
+        }
+        return true;
     }
 
     private static class Node<T> {

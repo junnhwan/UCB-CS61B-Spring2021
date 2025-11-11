@@ -28,7 +28,37 @@ public class ArrayDeque<T> implements Deque<T>, Iterable<T> {
         }
     }
 
-    public static final int RESIZE_CAPACITY = 16;
+    @Override
+    public boolean equals(Object o) {
+        // 1. 自身引用检查
+        if (this == o) {
+            return true;
+        }
+        // 2. 非空和类型检查（必须是Deque的实现类）
+        if (o == null || !(o instanceof Deque)) {
+            return false;
+        }
+        Deque<?> other = (Deque<?>) o;
+        // 3. 大小检查
+        if (this.size() != other.size()) {
+            return false;
+        }
+        // 4. 元素逐一比较
+        for (int i = 0; i < this.size(); i++) {
+            Object thisItem = this.get(i);
+            Object otherItem = other.get(i);
+            // 处理null元素
+            if (thisItem == null && otherItem == null) {
+                continue;
+            }
+            if (thisItem == null || !thisItem.equals(otherItem)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private static final int RESIZE_CAPACITY = 16;
 
     private T[] items;
     private int size;
