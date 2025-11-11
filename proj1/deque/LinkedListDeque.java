@@ -1,6 +1,36 @@
 package deque;
 
-public class LinkedListDeque<T> implements Deque<T> {
+import java.util.Iterator;
+
+public class LinkedListDeque<T> implements Deque<T>, Iterable<T> {
+
+    @Override
+    public Iterator<T> iterator() {
+        return new LinkedListDequeIterator();
+    }
+
+    private class LinkedListDequeIterator implements Iterator<T> {
+        private Node<T> curr;
+
+        public LinkedListDequeIterator() {
+            curr = sentinel.next; // 从第一个元素开始
+        }
+
+        @Override
+        public boolean hasNext() {
+            return curr != sentinel;
+        }
+
+        @Override
+        public T next() {
+            if (!hasNext()) {
+                throw new java.util.NoSuchElementException();
+            }
+            T item = curr.item;
+            curr = curr.next;
+            return item;
+        }
+    }
 
     private static class Node<T> {
         private T item;

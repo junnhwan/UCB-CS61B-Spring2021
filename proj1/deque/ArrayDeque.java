@@ -1,6 +1,32 @@
 package deque;
 
-public class ArrayDeque<T> implements Deque<T> {
+import java.util.Iterator;
+
+public class ArrayDeque<T> implements Deque<T>, Iterable<T> {
+
+    @Override
+    public Iterator<T> iterator() {
+        return new ArrayDequeIterator();
+    }
+
+    private class ArrayDequeIterator implements Iterator<T> {
+        private int ptr; // 遍历指针，从 0 开始
+
+        @Override
+        public boolean hasNext() {
+            return ptr < size;
+        }
+
+        @Override
+        public T next() {
+            if (!hasNext()) {
+                throw new java.util.NoSuchElementException();
+            }
+            T item = get(ptr);
+            ptr++;
+            return item;
+        }
+    }
 
     public static final int RESIZE_CAPACITY = 16;
 
