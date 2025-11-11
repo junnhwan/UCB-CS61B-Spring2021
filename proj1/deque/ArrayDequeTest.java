@@ -1,9 +1,12 @@
 package deque;
 
 import org.junit.Test;
+
 import static org.junit.Assert.*;
 
-/** Performs some basic ArrayDeque tests (following CS61B style). */
+/**
+ * Performs some basic ArrayDeque tests (following CS61B style).
+ */
 public class ArrayDequeTest {
 
     @Test
@@ -73,8 +76,8 @@ public class ArrayDequeTest {
     /* Check if you can create ArrayDeques with different parameterized types*/
     public void multipleParamTest() {
 
-        ArrayDeque<String>  ad1 = new ArrayDeque<String>();
-        ArrayDeque<Double>  ad2 = new ArrayDeque<Double>();
+        ArrayDeque<String> ad1 = new ArrayDeque<String>();
+        ArrayDeque<Double> ad2 = new ArrayDeque<Double>();
         ArrayDeque<Boolean> ad3 = new ArrayDeque<Boolean>();
 
         ad1.addFirst("string");
