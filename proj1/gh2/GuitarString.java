@@ -2,6 +2,7 @@ package gh2;
 
 // TODO: uncomment the following import once you're ready to start this portion
 
+import deque.ArrayDeque;
 import deque.Deque;
 // TODO: maybe more imports
 
@@ -25,6 +26,11 @@ public class GuitarString {
         //       cast the result of this division operation into an int. For
         //       better accuracy, use the Math.round() function before casting.
         //       Your should initially fill your buffer array with zeros.
+        int capacity = (int) Math.round(SR / frequency);
+        buffer = new ArrayDeque<>();
+        for (int i = 0; i < capacity; i++) {
+            buffer.addLast(0.0);
+        }
     }
 
 
@@ -38,6 +44,17 @@ public class GuitarString {
         //       other. This does not mean that you need to check that the numbers
         //       are different from each other. It means you should repeatedly call
         //       Math.random() - 0.5 to generate new random numbers for each array index.
+        // 记录缓冲区容量（清空前获取，确保填充后长度不变）
+        int capacity = buffer.size();
+        // 清空缓冲区
+        while (!buffer.isEmpty()) {
+            buffer.removeFirst();
+        }
+        // 填充随机噪声（-0.5到0.5之间）
+        for (int i = 0; i < capacity; i++) {
+            double randomValue = Math.random() - 0.5;
+            buffer.addLast(randomValue);
+        }
     }
 
     /* Advance the simulation one time step by performing one iteration of
@@ -47,12 +64,24 @@ public class GuitarString {
         // TODO: Dequeue the front sample and enqueue a new sample that is
         //       the average of the two multiplied by the DECAY factor.
         //       **Do not call StdAudio.play().**
+        if (buffer.isEmpty()) {
+            return; // 空缓冲区无需操作（实际场景中不会出现）
+        }
+        // 移除头部元素
+        double oldFront = buffer.removeFirst();
+        // 获取新的头部元素（原第二个元素）
+        double newFront = buffer.get(0);
+        // 计算新样本（衰减后的平均值）
+        double newSample = (oldFront + newFront) / 2 * DECAY;
+        // 加入尾部
+        buffer.addLast(newSample);
     }
 
     /* Return the double at the front of the buffer. */
     public double sample() {
         // TODO: Return the correct thing.
-        return 0;
+        // return 0;
+        return buffer.get(0);
     }
 }
 // TODO: Remove all comments that say TODO when you're done.
